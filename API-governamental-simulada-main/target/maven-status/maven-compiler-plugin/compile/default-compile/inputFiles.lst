@@ -1,0 +1,13 @@
+/home/dede/Downloads/Alfa Projeto de Clinica Veterinaria A3/API-governamental-simulada-main/src/main/java/com/api/governo/GovernoApplication.java
+/home/dede/Downloads/Alfa Projeto de Clinica Veterinaria A3/API-governamental-simulada-main/src/main/java/com/api/governo/config/JacksonConfig.java
+/home/dede/Downloads/Alfa Projeto de Clinica Veterinaria A3/API-governamental-simulada-main/src/main/java/com/api/governo/controller/GovernoController.java
+/home/dede/Downloads/Alfa Projeto de Clinica Veterinaria A3/API-governamental-simulada-main/src/main/java/com/api/governo/dto/AnimalRequest.java
+/home/dede/Downloads/Alfa Projeto de Clinica Veterinaria A3/API-governamental-simulada-main/src/main/java/com/api/governo/dto/VacinacaoRequest.java
+/home/dede/Downloads/Alfa Projeto de Clinica Veterinaria A3/API-governamental-simulada-main/src/main/java/com/api/governo/entity/AnimalGov.java
+/home/dede/Downloads/Alfa Projeto de Clinica Veterinaria A3/API-governamental-simulada-main/src/main/java/com/api/governo/entity/OperacaoGov.java
+/home/dede/Downloads/Alfa Projeto de Clinica Veterinaria A3/API-governamental-simulada-main/src/main/java/com/api/governo/entity/VacinacaoGov.java
+/home/dede/Downloads/Alfa Projeto de Clinica Veterinaria A3/API-governamental-simulada-main/src/main/java/com/api/governo/exception/ApiExceptionHandler.java
+/home/dede/Downloads/Alfa Projeto de Clinica Veterinaria A3/API-governamental-simulada-main/src/main/java/com/api/governo/repository/AnimalGovRepository.java
+/home/dede/Downloads/Alfa Projeto de Clinica Veterinaria A3/API-governamental-simulada-main/src/main/java/com/api/governo/repository/OperacaoGovRepository.java
+/home/dede/Downloads/Alfa Projeto de Clinica Veterinaria A3/API-governamental-simulada-main/src/main/java/com/api/governo/repository/VacinacaoGovRepository.java
+/home/dede/Downloads/Alfa Projeto de Clinica Veterinaria A3/API-governamental-simulada-main/src/main/java/com/api/governo/service/GovernoService.java

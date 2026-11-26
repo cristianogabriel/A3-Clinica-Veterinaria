@@ -1,0 +1,13 @@
+com/api/governo/entity/VacinacaoGov.class
+com/api/governo/repository/OperacaoGovRepository.class
+com/api/governo/dto/VacinacaoRequest.class
+com/api/governo/GovernoApplication.class
+com/api/governo/entity/AnimalGov.class
+com/api/governo/service/GovernoService.class
+com/api/governo/dto/AnimalRequest.class
+com/api/governo/entity/OperacaoGov.class
+com/api/governo/controller/GovernoController.class
+com/api/governo/repository/AnimalGovRepository.class
+com/api/governo/repository/VacinacaoGovRepository.class
+com/api/governo/config/JacksonConfig.class
+com/api/governo/exception/ApiExceptionHandler.class
