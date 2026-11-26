@@ -1,0 +1,2032 @@
+{
+  "info": {
+    "_postman_id": "0ca64b8d-8262-4071-8155-7ac87980043e",
+    "name": "A3 SDM - API Governamental - Completa",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "# Testes da API governamental simulada\n\nProjeto A3 de Sistemas Distribuídos e Mobile. **Responsável pela execução: Cristiano Gabriel Firmino.**\n\nEsta coleção documenta os testes de cadastro e consulta de animais, atualização cadastral, vacinação antirrábica, validações, idempotência e recuperação do serviço. As evidências de execução são de 19, 21 e 22 de novembro de 2026.\n\n## Resultado consolidado\n\n**19 casos executados: 18 aprovados e 1 reprovado. 38 de 40 verificações aprovadas.**\n\n| Caso | HTTP observado | Verificações aprovadas | Situação |\n| --- | --- | --- | --- |\n| GOV-01 | 404 | 2/2 | Aprovado |\n| GOV-02 | 201 | 2/2 | Aprovado |\n| GOV-03 | 200 | 2/2 | Aprovado |\n| GOV-04 | 200 | 2/4 | Reprovado: duas falhas |\n| GOV-05 | 201 | 2/2 | Aprovado |\n| GOV-06 | 409 | 2/2 | Aprovado |\n| GOV-07 | 409 | 2/2 | Aprovado |\n| GOV-08 | 400 | 2/2 | Aprovado |\n| GOV-09 | 400 | 2/2 | Aprovado |\n| GOV-10 | 200 | 2/2 | Aprovado |\n| GOV-11 | 200 | 2/2 | Aprovado |\n| GOV-12 | 201 | 2/2 | Aprovado |\n| GOV-13 | 201 | 2/2 | Aprovado |\n| GOV-14A | 404 | 2/2 | Aprovado |\n| GOV-14B | 201 | 2/2 | Aprovado |\n| GOV-14C | 200 | 2/2 | Aprovado |\n| GOV-15 | 400 | 2/2 | Aprovado |\n| GOV-16A | 503 | 2/2 | Aprovado |\n| GOV-16B | 201 | 2/2 | Aprovado |\n\n## Falhas pendentes no GOV-04\n\n- O campo resultado contém metadados da árvore JSON em vez dos dados do cadastro.\n- dataProcessamento foi registrada antes de dataRecebimento.\n\nO GOV-04 retornou HTTP 200, mas aprovou apenas 2 de 4 verificações. Correção e reteste permanecem pendentes. O exemplo publicado preserva a resposta com as falhas observadas.\n\n## Como interpretar os exemplos\n\nOs exemplos de resposta foram transcritos das evidências de execução. Seis exemplos estão identificados como trecho e mostram somente os campos documentados nos prints ou nas verificações. Os cabeçalhos de transporte e os tempos de resposta foram omitidos. Nos exemplos de requisição com Body JSON, Content-Type é declarado explicitamente para facilitar a reprodução. Os exemplos não representam uma nova execução nem substituem o histórico de testes. O relatório PDF da entrega consolida os resultados e os critérios de reteste.\n\nOs valores publicados das variáveis são exemplos da execução registrada. Os scripts atualizam os valores locais durante a execução dos cenários.\n\n## Ordem de execução\n\n1. Com a API em modo normal, executar GOV-01 a GOV-15 na ordem da coleção.\n2. GOV-02 preenche protocoloCadastro; GOV-12 preenche os identificadores usados no GOV-13.\n3. No grupo GOV-14, executar A, B e C em sequência. O Pre-request do GOV-14A gera um microchip novo; manter esse mesmo valor durante B e C.\n4. Para GOV-16A, reiniciar a API com --governo.simular-indisponibilidade=true. O HTTP 503 é o resultado esperado.\n5. Restaurar a API com --governo.simular-indisponibilidade=false e executar GOV-16B com a mesma chave e o mesmo Body do GOV-16A. O resultado esperado é HTTP 201.\n\n## Ambiente e escopo\n\nA API e o banco devem estar configurados na máquina que executa os testes. A URL http://localhost:8081/api/governo aponta para essa máquina. Os dados de animais e profissional usados nos testes são fictícios.\n\nO grupo GOV-16 comprova o reenvio manual ao serviço governamental. A preservação de pendências e a retentativa automática pela API da clínica ficam para a validação da integração.\n\n## Rastreabilidade da coleção\n\nA exportação inicial recebida continha GOV-01 a GOV-14C. As definições de GOV-15, GOV-16A e GOV-16B foram reconstituídas a partir do roteiro e dos prints de execução. Esta edição adapta as descrições, os valores de exemplo e os exemplos de resposta para publicação. Os scripts e os pedidos executáveis foram preservados."
+  },
+  "item": [
+    {
+      "name": "GOV-01 - Consultar microchip inexistente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Retorna HTTP 404\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"Informa que o animal não existe\", function () {",
+              "    const resposta = pm.response.json();",
+              "",
+              "    pm.expect(resposta.status).to.equal(404);",
+              "    pm.expect(resposta.erro).to.equal(\"Animal não encontrado.\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8081/api/governo/animais/982000000000001",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "governo",
+            "animais",
+            "982000000000001"
+          ]
+        },
+        "description": "### Objetivo\n\nConsultar um microchip que não consta no cadastro governamental.\n\n### Pré-condições\n\nAPI em modo normal. O microchip 982000000000001 deve permanecer sem cadastro.\n\n### Verificações\n\nRetornar HTTP 404 e a mensagem Animal não encontrado.\n\n### Resultado documentado\n\n- Data da evidência: 19/11/2026.\n- HTTP observado: 404 Not Found.\n- Verificações aprovadas: 2/2.\n- Situação: Aprovado.\n\n### Exemplo de resposta\n\nO corpo JSON foi transcrito da evidência fornecida na execução. Cabeçalhos de transporte e tempo de resposta não foram transcritos.\n\n"
+      },
+      "response": [
+        {
+          "id": "e6f8ffad-0792-447d-b4b8-264060c8e8d2",
+          "name": "HTTP 404 - JSON observado",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/governo/animais/982000000000001",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "governo",
+                "animais",
+                "982000000000001"
+              ]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"status\": 404,\n  \"erro\": \"Animal não encontrado.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "GOV-02 - Cadastrar animal válido",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Retorna HTTP 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Retorna o animal e um protocolo\", function () {",
+              "    const resposta = pm.response.json();",
+              "",
+              "    pm.expect(resposta.animal.nome).to.equal(\"Rex\");",
+              "    pm.expect(resposta.protocolo).to.be.a(\"string\").and.not.empty;",
+              "",
+              "    pm.collectionVariables.set(",
+              "        \"protocoloCadastro\",",
+              "        resposta.protocolo",
+              "    );",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "cristiano-cadastro-002",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome\": \"Rex\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"sexo\": \"M\",\n  \"cor\": \"Caramelo\",\n  \"especie\": \"Cão\",\n  \"raca\": \"SRD\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/governo/animais",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "governo",
+            "animais"
+          ]
+        },
+        "description": "### Objetivo\n\nCadastrar o animal Rex e obter um protocolo para consultar a operação.\n\n### Pré-condições\n\nAPI em modo normal; Body válido. Usar a chave cristiano-cadastro-002 com o Body definido neste caso.\n\n### Verificações\n\nRetornar HTTP 201, animal com nome Rex e protocolo preenchido. O script armazena protocoloCadastro.\n\n### Resultado documentado\n\n- Data da evidência: 19/11/2026.\n- HTTP observado: 201 Created.\n- Verificações aprovadas: 2/2.\n- Situação: Aprovado.\n\n### Exemplo de resposta\n\nO exemplo é um trecho do JSON observado, limitado aos campos documentados pelos prints e pelas verificações aprovadas. A resposta original contém outros campos que foram omitidos deste exemplo.\n\n"
+      },
+      "response": [
+        {
+          "id": "307cecf8-7ffb-4cb2-9e92-2905196bff62",
+          "name": "HTTP 201 - JSON observado (trecho)",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "cristiano-cadastro-002",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome\": \"Rex\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"sexo\": \"M\",\n  \"cor\": \"Caramelo\",\n  \"especie\": \"Cão\",\n  \"raca\": \"SRD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/governo/animais",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "governo",
+                "animais"
+              ]
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"animal\": {\n    \"nome\": \"Rex\"\n  },\n  \"protocolo\": \"eb503992-9578-421a-be15-1779fc362014\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "GOV-03 - Consultar animal cadastrado",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Retorna HTTP 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Retorna os dados do animal cadastrado\", function () {",
+              "    const animal = pm.response.json();",
+              "",
+              "    pm.expect(animal.codigo_microchip).to.equal(\"982000000000002\");",
+              "    pm.expect(animal.nome).to.equal(\"Rex\");",
+              "    pm.expect(animal.data_nascimento).to.equal(\"2022-04-10\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8081/api/governo/animais/982000000000002",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "governo",
+            "animais",
+            "982000000000002"
+          ]
+        },
+        "description": "### Objetivo\n\nConsultar o animal criado no GOV-02 pelo código do microchip.\n\n### Pré-condições\n\nExecutar GOV-02. API em modo normal.\n\n### Verificações\n\nRetornar HTTP 200, codigo_microchip 982000000000002, nome Rex e data_nascimento 2022-04-10.\n\n### Resultado documentado\n\n- Data da evidência: 19/11/2026.\n- HTTP observado: 200 OK.\n- Verificações aprovadas: 2/2.\n- Situação: Aprovado.\n\n### Exemplo de resposta\n\nO exemplo é um trecho do JSON observado, limitado aos campos documentados pelos prints e pelas verificações aprovadas. A resposta original contém outros campos que foram omitidos deste exemplo.\n\n"
+      },
+      "response": [
+        {
+          "id": "8d16b020-efea-4b38-813a-e1032080d7a3",
+          "name": "HTTP 200 - JSON observado (trecho)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/governo/animais/982000000000002",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "governo",
+                "animais",
+                "982000000000002"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome\": \"Rex\",\n  \"data_nascimento\": \"2022-04-10\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "GOV-04 - Consultar protocolo do cadastro",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Retorna HTTP 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Retorna o protocolo do cadastro confirmado\", function () {",
+              "    const operacao = pm.response.json();",
+              "",
+              "    pm.expect(operacao.protocolo).to.equal(",
+              "        pm.collectionVariables.get(\"protocoloCadastro\")",
+              "    );",
+              "",
+              "    pm.expect(operacao.situacao).to.equal(\"CONFIRMADA\");",
+              "});",
+              "",
+              "pm.test(\"Resultado inclui os dados do cadastro\", function () {",
+              "    const operacao = pm.response.json();",
+              "",
+              "    pm.expect(operacao.resultado).to.have.property(\"animal\");",
+              "    pm.expect(operacao.resultado.animal.nome).to.equal(\"Rex\");",
+              "    pm.expect(operacao.resultado.protocolo).to.equal(",
+              "        operacao.protocolo",
+              "    );",
+              "});",
+              "",
+              "pm.test(\"Recebimento ocorre antes ou junto do processamento\", function () {",
+              "    const operacao = pm.response.json();",
+              "",
+              "    const recebido = Date.parse(operacao.dataRecebimento);",
+              "    const processado = Date.parse(operacao.dataProcessamento);",
+              "",
+              "    pm.expect(recebido).to.be.at.most(processado);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8081/api/governo/operacoes/{{protocoloCadastro}}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "governo",
+            "operacoes",
+            "{{protocoloCadastro}}"
+          ]
+        },
+        "description": "### Objetivo\n\nConsultar o protocolo do cadastro e verificar o conteúdo do resultado e a ordem das datas.\n\n### Pré-condições\n\nExecutar GOV-02 para preencher protocoloCadastro. API em modo normal.\n\n### Verificações\n\nHTTP 200; protocolo correspondente; situação CONFIRMADA; resultado contendo animal e protocolo; recebimento anterior ou simultâneo ao processamento.\n\n### Resultado documentado\n\n- Data da evidência: 19/11/2026 às 16h57.\n- HTTP observado: 200 OK.\n- Verificações aprovadas: 2/4.\n- Situação: Reprovado: duas falhas.\n\n### Falhas confirmadas e ainda pendentes\n\n- BUG-GOV-01: resultado expõe metadados da árvore JSON, como node_type e container_node, em vez dos dados do cadastro.\n- BUG-GOV-02: dataProcessamento é anterior a dataRecebimento em aproximadamente 1,609095 segundo.\n\nHTTP 200, protocolo e situação passaram. As verificações de conteúdo de resultado e de ordem temporal falharam. A resposta de exemplo preserva essas falhas. O reteste temporal após a correção deve usar uma operação nova.\n\n### Exemplo de resposta\n\nO corpo JSON foi transcrito da evidência fornecida na execução. Cabeçalhos de transporte e tempo de resposta não foram transcritos.\n\n"
+      },
+      "response": [
+        {
+          "id": "96969d5e-13c2-4677-91a9-e81ee75c1c0d",
+          "name": "HTTP 200 - JSON observado - duas falhas registradas",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/governo/operacoes/eb503992-9578-421a-be15-1779fc362014",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "governo",
+                "operacoes",
+                "eb503992-9578-421a-be15-1779fc362014"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"protocolo\": \"eb503992-9578-421a-be15-1779fc362014\",\n  \"tipoOperacao\": \"CADASTRO_ANIMAL\",\n  \"situacao\": \"CONFIRMADA\",\n  \"dataRecebimento\": \"2026-11-19T16:31:34.61464\",\n  \"dataProcessamento\": \"2026-11-19T16:31:33.005545\",\n  \"resultado\": {\n    \"array\": false,\n    \"big_decimal\": false,\n    \"big_integer\": false,\n    \"binary\": false,\n    \"boolean\": false,\n    \"container_node\": true,\n    \"double\": false,\n    \"empty\": false,\n    \"float\": false,\n    \"floating_point_number\": false,\n    \"int\": false,\n    \"integral_number\": false,\n    \"long\": false,\n    \"missing_node\": false,\n    \"node_type\": \"OBJECT\",\n    \"null\": false,\n    \"number\": false,\n    \"object\": true,\n    \"pojo\": false,\n    \"short\": false,\n    \"textual\": false,\n    \"value_node\": false\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "GOV-05 - Repetir cadastro com a mesma chave",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Retorna HTTP 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Mantém o protocolo e os dados originais\", function () {",
+              "    const resposta = pm.response.json();",
+              "    const protocoloOriginal =",
+              "        pm.collectionVariables.get(\"protocoloCadastro\");",
+              "",
+              "    pm.expect(protocoloOriginal).to.be.a(\"string\").and.not.empty;",
+              "    pm.expect(resposta.protocolo).to.equal(protocoloOriginal);",
+              "    pm.expect(resposta.animal.codigoMicrochip)",
+              "        .to.equal(\"982000000000002\");",
+              "    pm.expect(resposta.animal.nome).to.equal(\"Rex\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "cristiano-cadastro-002",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome\": \"Rex\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"sexo\": \"M\",\n  \"cor\": \"Caramelo\",\n  \"especie\": \"Cão\",\n  \"raca\": \"SRD\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/governo/animais",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "governo",
+            "animais"
+          ]
+        },
+        "description": "### Objetivo\n\nRepetir o cadastro com a mesma chave de idempotência e exatamente o mesmo Body do GOV-02.\n\n### Pré-condições\n\nExecutar GOV-02. Manter a chave cristiano-cadastro-002 e todos os dados do pedido original.\n\n### Verificações\n\nRetornar HTTP 201 e preservar o protocolo, o microchip e o nome do cadastro original.\n\n### Resultado documentado\n\n- Data da evidência: 19/11/2026.\n- HTTP observado: 201 Created.\n- Verificações aprovadas: 2/2.\n- Situação: Aprovado.\n\n### Exemplo de resposta\n\nO exemplo é um trecho do JSON observado, limitado aos campos documentados pelos prints e pelas verificações aprovadas. A resposta original contém outros campos que foram omitidos deste exemplo.\n\n"
+      },
+      "response": [
+        {
+          "id": "0ec77f01-460c-4670-b21a-9b458e91e018",
+          "name": "HTTP 201 - JSON observado (trecho)",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "cristiano-cadastro-002",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome\": \"Rex\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"sexo\": \"M\",\n  \"cor\": \"Caramelo\",\n  \"especie\": \"Cão\",\n  \"raca\": \"SRD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/governo/animais",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "governo",
+                "animais"
+              ]
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"animal\": {\n    \"codigoMicrochip\": \"982000000000002\",\n    \"nome\": \"Rex\"\n  },\n  \"protocolo\": \"eb503992-9578-421a-be15-1779fc362014\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "GOV-06 - Rejeitar mesma chave com dados diferentes",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Retorna HTTP 409\", function () {",
+              "    pm.response.to.have.status(409);",
+              "});",
+              "",
+              "pm.test(\"Rejeita conteúdo diferente para a mesma chave\", function () {",
+              "    const resposta = pm.response.json();",
+              "",
+              "    pm.expect(resposta.status).to.equal(409);",
+              "    pm.expect(resposta.erro).to.equal(",
+              "        \"Chave de idempotência reutilizada com conteúdo diferente.\"",
+              "    );",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "cristiano-cadastro-002",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome\": \"Rex Alterado\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"sexo\": \"M\",\n  \"cor\": \"Caramelo\",\n  \"especie\": \"Cão\",\n  \"raca\": \"SRD\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/governo/animais",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "governo",
+            "animais"
+          ]
+        },
+        "description": "### Objetivo\n\nRejeitar o uso da chave do cadastro original com conteúdo diferente.\n\n### Pré-condições\n\nExecutar GOV-02. Reutilizar cristiano-cadastro-002 e alterar o nome para Rex Alterado.\n\n### Verificações\n\nRetornar HTTP 409 e informar que a chave de idempotência foi reutilizada com conteúdo diferente.\n\n### Resultado documentado\n\n- Data da evidência: 19/11/2026.\n- HTTP observado: 409 Conflict.\n- Verificações aprovadas: 2/2.\n- Situação: Aprovado.\n\n### Exemplo de resposta\n\nO corpo JSON foi transcrito da evidência fornecida na execução. Cabeçalhos de transporte e tempo de resposta não foram transcritos.\n\n"
+      },
+      "response": [
+        {
+          "id": "caa69424-cbe4-4d85-bf6e-a060a2e5996d",
+          "name": "HTTP 409 - JSON observado",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "cristiano-cadastro-002",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome\": \"Rex Alterado\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"sexo\": \"M\",\n  \"cor\": \"Caramelo\",\n  \"especie\": \"Cão\",\n  \"raca\": \"SRD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/governo/animais",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "governo",
+                "animais"
+              ]
+            }
+          },
+          "status": "Conflict",
+          "code": 409,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"status\": 409,\n  \"erro\": \"Chave de idempotência reutilizada com conteúdo diferente.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "GOV-07 - Rejeitar microchip duplicado",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Retorna HTTP 409\", function () {",
+              "    pm.response.to.have.status(409);",
+              "});",
+              "",
+              "pm.test(\"Rejeita microchip já cadastrado\", function () {",
+              "    const resposta = pm.response.json();",
+              "",
+              "    pm.expect(resposta.status).to.equal(409);",
+              "    pm.expect(resposta.erro).to.equal(",
+              "        \"Microchip já cadastrado.\"",
+              "    );",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "cristiano-microchip-duplicado-007-reteste-01",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome\": \"Rex\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"sexo\": \"M\",\n  \"cor\": \"Caramelo\",\n  \"especie\": \"Cão\",\n  \"raca\": \"SRD\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/governo/animais",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "governo",
+            "animais"
+          ]
+        },
+        "description": "### Objetivo\n\nRejeitar um segundo cadastro do microchip do Rex usando uma chave nova.\n\n### Pré-condições\n\nRex cadastrado pelo GOV-02. Usar cristiano-microchip-duplicado-007-reteste-01, diferente das chaves de operações já confirmadas.\n\n### Verificações\n\nRetornar HTTP 409 e a mensagem Microchip já cadastrado.\n\n### Resultado documentado\n\n- Data da evidência: 22/11/2026 às 20h20 (reteste).\n- HTTP observado: 409 Conflict.\n- Verificações aprovadas: 2/2.\n- Situação: Aprovado.\n\nA chave precisa estar livre de uma operação anterior com outro Body. Esse outro conflito é tratado pelo GOV-06.\n\n### Exemplo de resposta\n\nO corpo JSON foi transcrito da evidência fornecida na execução. Cabeçalhos de transporte e tempo de resposta não foram transcritos.\n\n"
+      },
+      "response": [
+        {
+          "id": "3bb31b8b-e4de-47af-9ebe-c259fad4f0b3",
+          "name": "HTTP 409 - JSON observado",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "cristiano-microchip-duplicado-007-reteste-01",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome\": \"Rex\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"sexo\": \"M\",\n  \"cor\": \"Caramelo\",\n  \"especie\": \"Cão\",\n  \"raca\": \"SRD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/governo/animais",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "governo",
+                "animais"
+              ]
+            }
+          },
+          "status": "Conflict",
+          "code": 409,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"status\": 409,\n  \"erro\": \"Microchip já cadastrado.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "GOV-08 - Rejeitar pedido sem chave de idempotência",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Retorna HTTP 400\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"Informa que a chave é obrigatória\", function () {",
+              "    const resposta = pm.response.json();",
+              "",
+              "    pm.expect(resposta.status).to.equal(400);",
+              "    pm.expect(resposta.erro).to.equal(",
+              "        \"Header Idempotency-Key obrigatório (até 100 caracteres).\"",
+              "    );",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "cristiano-cadastro-duplicado-002",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigo_microchip\": \"982000000000003\",\n  \"nome\": \"Rex\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"sexo\": \"M\",\n  \"cor\": \"Caramelo\",\n  \"especie\": \"Cão\",\n  \"raca\": \"SRD\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/governo/animais",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "governo",
+            "animais"
+          ]
+        },
+        "description": "### Objetivo\n\nRejeitar um pedido de cadastro sem a chave de idempotência obrigatória.\n\n### Pré-condições\n\nAPI em modo normal. O header Idempotency-Key permanece desabilitado nesta requisição.\n\n### Verificações\n\nRetornar HTTP 400 e informar a obrigatoriedade do header Idempotency-Key.\n\n### Resultado documentado\n\n- Data da evidência: 19/11/2026 às 17h39.\n- HTTP observado: 400 Bad Request.\n- Verificações aprovadas: 2/2.\n- Situação: Aprovado.\n\n### Exemplo de resposta\n\nO corpo JSON foi transcrito da evidência fornecida na execução. Cabeçalhos de transporte e tempo de resposta não foram transcritos.\n\n"
+      },
+      "response": [
+        {
+          "id": "da3b35b6-26ff-422e-b863-c768ded6aa72",
+          "name": "HTTP 400 - JSON observado",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "cristiano-cadastro-duplicado-002",
+                "type": "text",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo_microchip\": \"982000000000003\",\n  \"nome\": \"Rex\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"sexo\": \"M\",\n  \"cor\": \"Caramelo\",\n  \"especie\": \"Cão\",\n  \"raca\": \"SRD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/governo/animais",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "governo",
+                "animais"
+              ]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"status\": 400,\n  \"erro\": \"Header Idempotency-Key obrigatório (até 100 caracteres).\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "GOV-09 - Rejeitar microchip vazio",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Retorna HTTP 400\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"Informa que o microchip é obrigatório\", function () {",
+              "    const resposta = pm.response.json();",
+              "",
+              "    pm.expect(resposta.erro).to.equal(\"Dados inválidos.\");",
+              "    pm.expect(resposta.detalhes).to.be.an(\"array\");",
+              "    pm.expect(resposta.detalhes.join(\" \"))",
+              "        .to.include(\"codigoMicrochip\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "cristiano-dados-invalidos-009",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigo_microchip\": \"\",\n  \"nome\": \"Rex\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"sexo\": \"M\",\n  \"cor\": \"Caramelo\",\n  \"especie\": \"Cão\",\n  \"raca\": \"SRD\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/governo/animais",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "governo",
+            "animais"
+          ]
+        },
+        "description": "### Objetivo\n\nValidar a obrigatoriedade do código de microchip no cadastro.\n\n### Pré-condições\n\nAPI em modo normal. Enviar codigo_microchip vazio e manter os demais dados válidos.\n\n### Verificações\n\nRetornar HTTP 400, Dados inválidos. e detalhes indicando codigoMicrochip.\n\n### Resultado documentado\n\n- Data da evidência: 19/11/2026.\n- HTTP observado: 400 Bad Request.\n- Verificações aprovadas: 2/2.\n- Situação: Aprovado.\n\n### Exemplo de resposta\n\nO corpo JSON foi transcrito da evidência fornecida na execução. Cabeçalhos de transporte e tempo de resposta não foram transcritos.\n\n"
+      },
+      "response": [
+        {
+          "id": "d9b1331d-5f89-4ecb-8022-30503d8074ae",
+          "name": "HTTP 400 - JSON observado",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "cristiano-dados-invalidos-009",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo_microchip\": \"\",\n  \"nome\": \"Rex\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"sexo\": \"M\",\n  \"cor\": \"Caramelo\",\n  \"especie\": \"Cão\",\n  \"raca\": \"SRD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/governo/animais",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "governo",
+                "animais"
+              ]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"status\": 400,\n  \"erro\": \"Dados inválidos.\",\n  \"detalhes\": [\n    \"codigoMicrochip: não deve estar em branco\"\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "GOV-10 - Atualizar animal cadastrado",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Retorna HTTP 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Atualiza a cor e gera um novo protocolo\", function () {",
+              "    const resposta = pm.response.json();",
+              "",
+              "    pm.expect(resposta.animal.nome).to.equal(\"Rex\");",
+              "    pm.expect(resposta.animal.cor).to.equal(\"Preto\");",
+              "    pm.expect(resposta.protocolo).to.be.a(\"string\").and.not.empty;",
+              "",
+              "    pm.expect(resposta.protocolo).not.to.equal(",
+              "        pm.collectionVariables.get(\"protocoloCadastro\")",
+              "    );",
+              "",
+              "    pm.collectionVariables.set(",
+              "        \"protocoloAtualizacao\",",
+              "        resposta.protocolo",
+              "    );",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "cristiano-atualizacao-010",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome\": \"Rex\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"sexo\": \"M\",\n  \"cor\": \"Preto\",\n  \"especie\": \"Cão\",\n  \"raca\": \"SRD\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/governo/animais/982000000000002",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "governo",
+            "animais",
+            "982000000000002"
+          ]
+        },
+        "description": "### Objetivo\n\nAtualizar o cadastro do Rex por PUT, alterando a cor para Preto.\n\n### Pré-condições\n\nExecutar GOV-02 e usar a chave cristiano-atualizacao-010. Manter os demais dados do animal.\n\n### Verificações\n\nRetornar HTTP 200, nome Rex, cor Preto e um protocolo diferente do cadastro. O script armazena protocoloAtualizacao.\n\n### Resultado documentado\n\n- Data da evidência: 19/11/2026.\n- HTTP observado: 200 OK.\n- Verificações aprovadas: 2/2.\n- Situação: Aprovado.\n\n### Exemplo de resposta\n\nO exemplo é um trecho do JSON observado, limitado aos campos documentados pelos prints e pelas verificações aprovadas. A resposta original contém outros campos que foram omitidos deste exemplo.\n\n"
+      },
+      "response": [
+        {
+          "id": "2f48072d-de8c-4bd2-ae77-1e61d950cebf",
+          "name": "HTTP 200 - JSON observado (trecho)",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "cristiano-atualizacao-010",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome\": \"Rex\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"sexo\": \"M\",\n  \"cor\": \"Preto\",\n  \"especie\": \"Cão\",\n  \"raca\": \"SRD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/governo/animais/982000000000002",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "governo",
+                "animais",
+                "982000000000002"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"animal\": {\n    \"nome\": \"Rex\",\n    \"cor\": \"Preto\"\n  },\n  \"protocolo\": \"8786a31d-294f-4398-bb0f-95ebd0dd88f3\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "GOV-11 - Confirmar alteração do animal",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Retorna HTTP 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Confirma que a nova cor ficou salva\", function () {",
+              "    const animal = pm.response.json();",
+              "",
+              "    pm.expect(animal.codigo_microchip).to.equal(\"982000000000002\");",
+              "    pm.expect(animal.nome).to.equal(\"Rex\");",
+              "    pm.expect(animal.cor).to.equal(\"Preto\");",
+              "    pm.expect(animal.data_nascimento).to.equal(\"2022-04-10\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8081/api/governo/animais/982000000000002",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "governo",
+            "animais",
+            "982000000000002"
+          ]
+        },
+        "description": "### Objetivo\n\nConfirmar por uma nova consulta GET que a cor alterada ficou salva.\n\n### Pré-condições\n\nExecutar GOV-10 após GOV-02.\n\n### Verificações\n\nRetornar HTTP 200, microchip do Rex, nome Rex, cor Preto e data_nascimento 2022-04-10.\n\n### Resultado documentado\n\n- Data da evidência: 19/11/2026.\n- HTTP observado: 200 OK.\n- Verificações aprovadas: 2/2.\n- Situação: Aprovado.\n\n### Exemplo de resposta\n\nO exemplo é um trecho do JSON observado, limitado aos campos documentados pelos prints e pelas verificações aprovadas. A resposta original contém outros campos que foram omitidos deste exemplo.\n\n"
+      },
+      "response": [
+        {
+          "id": "afcd3469-043f-4ed7-ac80-2ecc24390d3c",
+          "name": "HTTP 200 - JSON observado (trecho)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/governo/animais/982000000000002",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "governo",
+                "animais",
+                "982000000000002"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome\": \"Rex\",\n  \"cor\": \"Preto\",\n  \"data_nascimento\": \"2022-04-10\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "GOV-12 - Registrar vacina antirrábica",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Retorna HTTP 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Registra vacinação e retorna identificadores\", function () {",
+              "    const resposta = pm.response.json();",
+              "",
+              "    pm.expect(resposta.codigoMicrochip)",
+              "        .to.equal(\"982000000000002\");",
+              "    pm.expect(resposta.idVacinacao)",
+              "        .to.be.a(\"number\").and.above(0);",
+              "    pm.expect(resposta.protocolo)",
+              "        .to.be.a(\"string\").and.not.empty;",
+              "",
+              "    pm.collectionVariables.set(",
+              "        \"idVacinacao\",",
+              "        resposta.idVacinacao",
+              "    );",
+              "",
+              "    pm.collectionVariables.set(",
+              "        \"protocoloVacinacao\",",
+              "        resposta.protocolo",
+              "    );",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "cristiano-vacina-012",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome_animal\": \"Rex\",\n  \"especie\": \"Cão\",\n  \"cor\": \"Preto\",\n  \"sexo\": \"M\",\n  \"raca\": \"SRD\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"nome_vacina\": \"Antirrábica\",\n  \"fabricante\": \"Laboratório de Teste\",\n  \"numero_lote\": \"LT-GOV-012\",\n  \"data_aplicacao\": \"2026-11-19\",\n  \"dose\": \"Dose anual\",\n  \"via_aplicacao\": \"Subcutânea\",\n  \"validade_lote\": \"2027-06-30\",\n  \"observacoes\": \"Aplicação fictícia para teste da API\",\n  \"crmv\": \"90001\",\n  \"uf_crmv\": \"RJ\",\n  \"nome_vet_responsavel\": \"Veterinária de Teste\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/governo/vacinacoes-antirrabicas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "governo",
+            "vacinacoes-antirrabicas"
+          ]
+        },
+        "description": "### Objetivo\n\nRegistrar a vacinação antirrábica de um animal já cadastrado.\n\n### Pré-condições\n\nRex cadastrado e atualizado. API em modo normal. Body válido e chave cristiano-vacina-012.\n\n### Verificações\n\nRetornar HTTP 201, codigoMicrochip correspondente, idVacinacao positivo e protocolo. O script armazena idVacinacao e protocoloVacinacao.\n\n### Resultado documentado\n\n- Data da evidência: 19/11/2026 às 18h03.\n- HTTP observado: 201 Created.\n- Verificações aprovadas: 2/2.\n- Situação: Aprovado.\n\n### Exemplo de resposta\n\nO corpo JSON foi transcrito da evidência fornecida na execução. Cabeçalhos de transporte e tempo de resposta não foram transcritos.\n\n"
+      },
+      "response": [
+        {
+          "id": "2a1f30a0-d999-44dd-88ba-97cb0eac360d",
+          "name": "HTTP 201 - JSON observado",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "cristiano-vacina-012",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome_animal\": \"Rex\",\n  \"especie\": \"Cão\",\n  \"cor\": \"Preto\",\n  \"sexo\": \"M\",\n  \"raca\": \"SRD\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"nome_vacina\": \"Antirrábica\",\n  \"fabricante\": \"Laboratório de Teste\",\n  \"numero_lote\": \"LT-GOV-012\",\n  \"data_aplicacao\": \"2026-11-19\",\n  \"dose\": \"Dose anual\",\n  \"via_aplicacao\": \"Subcutânea\",\n  \"validade_lote\": \"2027-06-30\",\n  \"observacoes\": \"Aplicação fictícia para teste da API\",\n  \"crmv\": \"90001\",\n  \"uf_crmv\": \"RJ\",\n  \"nome_vet_responsavel\": \"Veterinária de Teste\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/governo/vacinacoes-antirrabicas",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "governo",
+                "vacinacoes-antirrabicas"
+              ]
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"codigoMicrochip\": \"982000000000002\",\n  \"idVacinacao\": 1,\n  \"protocolo\": \"69ca0d19-a11f-4117-82a3-a117ced1d6c3\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "GOV-13 - Repetir vacinação sem duplicidade",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Retorna HTTP 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Preserva o ID e o protocolo da vacinação\", function () {",
+              "    const resposta = pm.response.json();",
+              "",
+              "    const idOriginal = Number(",
+              "        pm.collectionVariables.get(\"idVacinacao\")",
+              "    );",
+              "",
+              "    const protocoloOriginal =",
+              "        pm.collectionVariables.get(\"protocoloVacinacao\");",
+              "",
+              "    pm.expect(idOriginal).to.be.above(0);",
+              "    pm.expect(resposta.idVacinacao).to.equal(idOriginal);",
+              "    pm.expect(resposta.protocolo).to.equal(protocoloOriginal);",
+              "    pm.expect(resposta.codigoMicrochip)",
+              "        .to.equal(\"982000000000002\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "cristiano-vacina-012",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome_animal\": \"Rex\",\n  \"especie\": \"Cão\",\n  \"cor\": \"Preto\",\n  \"sexo\": \"M\",\n  \"raca\": \"SRD\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"nome_vacina\": \"Antirrábica\",\n  \"fabricante\": \"Laboratório de Teste\",\n  \"numero_lote\": \"LT-GOV-012\",\n  \"data_aplicacao\": \"2026-11-19\",\n  \"dose\": \"Dose anual\",\n  \"via_aplicacao\": \"Subcutânea\",\n  \"validade_lote\": \"2027-06-30\",\n  \"observacoes\": \"Aplicação fictícia para teste da API\",\n  \"crmv\": \"90001\",\n  \"uf_crmv\": \"RJ\",\n  \"nome_vet_responsavel\": \"Veterinária de Teste\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/governo/vacinacoes-antirrabicas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "governo",
+            "vacinacoes-antirrabicas"
+          ]
+        },
+        "description": "### Objetivo\n\nReenviar a vacinação com a mesma chave e o mesmo Body do GOV-12.\n\n### Pré-condições\n\nExecutar GOV-12. Manter cristiano-vacina-012 e todos os dados originais da vacinação.\n\n### Verificações\n\nRetornar HTTP 201 e os mesmos idVacinacao, protocolo e codigoMicrochip do GOV-12.\n\n### Resultado documentado\n\n- Data da evidência: 19/11/2026 às 18h07.\n- HTTP observado: 201 Created.\n- Verificações aprovadas: 2/2.\n- Situação: Aprovado.\n\nA verificação observa a manutenção dos identificadores na resposta. Não foi realizada contagem direta de linhas no banco.\n\n### Exemplo de resposta\n\nO corpo JSON foi transcrito da evidência fornecida na execução. Cabeçalhos de transporte e tempo de resposta não foram transcritos.\n\n"
+      },
+      "response": [
+        {
+          "id": "5ed82f37-1559-4c72-a2df-81ea446ef3bb",
+          "name": "HTTP 201 - JSON observado",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "cristiano-vacina-012",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome_animal\": \"Rex\",\n  \"especie\": \"Cão\",\n  \"cor\": \"Preto\",\n  \"sexo\": \"M\",\n  \"raca\": \"SRD\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"nome_vacina\": \"Antirrábica\",\n  \"fabricante\": \"Laboratório de Teste\",\n  \"numero_lote\": \"LT-GOV-012\",\n  \"data_aplicacao\": \"2026-11-19\",\n  \"dose\": \"Dose anual\",\n  \"via_aplicacao\": \"Subcutânea\",\n  \"validade_lote\": \"2027-06-30\",\n  \"observacoes\": \"Aplicação fictícia para teste da API\",\n  \"crmv\": \"90001\",\n  \"uf_crmv\": \"RJ\",\n  \"nome_vet_responsavel\": \"Veterinária de Teste\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/governo/vacinacoes-antirrabicas",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "governo",
+                "vacinacoes-antirrabicas"
+              ]
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"protocolo\": \"69ca0d19-a11f-4117-82a3-a117ced1d6c3\",\n  \"idVacinacao\": 1,\n  \"codigoMicrochip\": \"982000000000002\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "GOV-14A - Confirmar animal não cadastrado",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "pm.collectionVariables.set(\"microchipNovo\", \"99\" + Date.now());"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Retorna HTTP 404\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"Informa que o animal não existe\", function () {",
+              "    const resposta = pm.response.json();",
+              "",
+              "    pm.expect(resposta.status).to.equal(404);",
+              "    pm.expect(resposta.erro).to.equal(\"Animal não encontrado.\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8081/api/governo/animais/{{microchipNovo}}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "governo",
+            "animais",
+            "{{microchipNovo}}"
+          ]
+        },
+        "description": "### Objetivo\n\nGerar um novo microchip e confirmar sua ausência antes de registrar a vacinação.\n\n### Pré-condições\n\nAPI em modo normal. O Pre-request define microchipNovo como 99 concatenado a Date.now().\n\n### Verificações\n\nRetornar HTTP 404 e Animal não encontrado. antes de executar GOV-14B.\n\n### Resultado documentado\n\n- Data da evidência: 21/11/2026 às 14h09.\n- HTTP observado: 404 Not Found.\n- Verificações aprovadas: 2/2.\n- Situação: Aprovado.\n\nO valor visível nesta documentação pertence à sequência registrada em 21/11. Para executar um cenário novo, usar o Pre-request no Postman. Após GOV-14B esse microchip passa a existir. Manter o mesmo valor durante A, B e C.\n\n### Exemplo de resposta\n\nO corpo JSON foi transcrito da evidência fornecida na execução. Cabeçalhos de transporte e tempo de resposta não foram transcritos.\n\n"
+      },
+      "response": [
+        {
+          "id": "efef281d-2f0b-4684-ac09-36b035469e2b",
+          "name": "HTTP 404 - JSON observado",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/governo/animais/991795280970722",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "governo",
+                "animais",
+                "991795280970722"
+              ]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"status\": 404,\n  \"erro\": \"Animal não encontrado.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "GOV-14B - Registrar vacina de animal não cadastrado",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Retorna HTTP 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Aceita vacinação do animal ainda não cadastrado\", function () {",
+              "    const resposta = pm.response.json();",
+              "",
+              "    pm.expect(resposta.codigoMicrochip).to.equal(",
+              "        pm.collectionVariables.get(\"microchipNovo\")",
+              "    );",
+              "",
+              "    pm.expect(resposta.idVacinacao)",
+              "        .to.be.a(\"number\").and.above(0);",
+              "",
+              "    pm.expect(resposta.protocolo)",
+              "        .to.be.a(\"string\").and.not.empty;",
+              "",
+              "    pm.collectionVariables.set(",
+              "        \"protocoloNovoAnimal\",",
+              "        resposta.protocolo",
+              "    );",
+              "",
+              "    pm.collectionVariables.set(",
+              "        \"idVacinacaoNovoAnimal\",",
+              "        resposta.idVacinacao",
+              "    );",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "cristiano-vacina-{{microchipNovo}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigo_microchip\": \"{{microchipNovo}}\",\n  \"nome_animal\": \"Luna\",\n  \"especie\": \"Cão\",\n  \"cor\": \"Branca\",\n  \"sexo\": \"F\",\n  \"raca\": \"SRD\",\n  \"data_nascimento\": \"2021-08-02\",\n  \"nome_vacina\": \"Antirrábica\",\n  \"fabricante\": \"Laboratório de Teste\",\n  \"numero_lote\": \"LT-GOV-014\",\n  \"data_aplicacao\": \"2026-11-21\",\n  \"dose\": \"Dose anual\",\n  \"via_aplicacao\": \"Subcutânea\",\n  \"validade_lote\": \"2027-06-30\",\n  \"observacoes\": \"Vacinação fictícia de animal ainda não cadastrado\",\n  \"crmv\": \"90001\",\n  \"uf_crmv\": \"RJ\",\n  \"nome_vet_responsavel\": \"Veterinária de Teste\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/governo/vacinacoes-antirrabicas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "governo",
+            "vacinacoes-antirrabicas"
+          ]
+        },
+        "description": "### Objetivo\n\nRegistrar uma vacinação para a Luna quando seu microchip ainda não está cadastrado.\n\n### Pré-condições\n\nExecutar GOV-14A uma vez. Usar microchipNovo no Body e na chave cristiano-vacina-{{microchipNovo}}.\n\n### Verificações\n\nRetornar HTTP 201, o microchip gerado, idVacinacao positivo e protocolo. O script armazena protocoloNovoAnimal e idVacinacaoNovoAnimal.\n\n### Resultado documentado\n\n- Data da evidência: 21/11/2026 às 15h28.\n- HTTP observado: 201 Created.\n- Verificações aprovadas: 2/2.\n- Situação: Aprovado.\n\nO GOV-14C verifica o cadastro automático do animal. Não reexecutar GOV-14A entre GOV-14B e GOV-14C.\n\n### Exemplo de resposta\n\nO corpo JSON foi transcrito da evidência fornecida na execução. Cabeçalhos de transporte e tempo de resposta não foram transcritos.\n\n"
+      },
+      "response": [
+        {
+          "id": "ddeea289-5e0c-4255-8827-2f2eff204e21",
+          "name": "HTTP 201 - JSON observado",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "cristiano-vacina-991795280970722",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo_microchip\": \"991795280970722\",\n  \"nome_animal\": \"Luna\",\n  \"especie\": \"Cão\",\n  \"cor\": \"Branca\",\n  \"sexo\": \"F\",\n  \"raca\": \"SRD\",\n  \"data_nascimento\": \"2021-08-02\",\n  \"nome_vacina\": \"Antirrábica\",\n  \"fabricante\": \"Laboratório de Teste\",\n  \"numero_lote\": \"LT-GOV-014\",\n  \"data_aplicacao\": \"2026-11-21\",\n  \"dose\": \"Dose anual\",\n  \"via_aplicacao\": \"Subcutânea\",\n  \"validade_lote\": \"2027-06-30\",\n  \"observacoes\": \"Vacinação fictícia de animal ainda não cadastrado\",\n  \"crmv\": \"90001\",\n  \"uf_crmv\": \"RJ\",\n  \"nome_vet_responsavel\": \"Veterinária de Teste\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/governo/vacinacoes-antirrabicas",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "governo",
+                "vacinacoes-antirrabicas"
+              ]
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"codigoMicrochip\": \"991795280970722\",\n  \"idVacinacao\": 2,\n  \"protocolo\": \"7b86e1bb-3a80-465e-ba95-5fb3c8310f1f\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "GOV-14C - Confirmar cadastro automático da Luna",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Retorna HTTP 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Confirma o cadastro automático da Luna\", function () {",
+              "    const animal = pm.response.json();",
+              "",
+              "    pm.expect(animal.codigo_microchip).to.equal(",
+              "        pm.collectionVariables.get(\"microchipNovo\")",
+              "    );",
+              "",
+              "    pm.expect(animal.nome).to.equal(\"Luna\");",
+              "    pm.expect(animal.cor).to.equal(\"Branca\");",
+              "    pm.expect(animal.sexo).to.equal(\"F\");",
+              "    pm.expect(animal.data_nascimento).to.equal(\"2021-08-02\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/governo/animais/{{microchipNovo}}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "governo",
+            "animais",
+            "{{microchipNovo}}"
+          ]
+        },
+        "description": "### Objetivo\n\nConsultar a Luna e confirmar o cadastro automático criado durante a vacinação.\n\n### Pré-condições\n\nExecutar GOV-14B mantendo o microchip gerado pelo GOV-14A.\n\n### Verificações\n\nRetornar HTTP 200, o microchip da sequência, nome Luna, cor Branca, sexo F e data_nascimento 2021-08-02.\n\n### Resultado documentado\n\n- Data da evidência: 21/11/2026 às 15h32.\n- HTTP observado: 200 OK.\n- Verificações aprovadas: 2/2.\n- Situação: Aprovado.\n\n### Exemplo de resposta\n\nO exemplo é um trecho do JSON observado, limitado aos campos documentados pelos prints e pelas verificações aprovadas. A resposta original contém outros campos que foram omitidos deste exemplo.\n\n"
+      },
+      "response": [
+        {
+          "id": "9a18b4ff-7d7c-41a3-a76b-561d6ab00328",
+          "name": "HTTP 200 - JSON observado (trecho)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/governo/animais/991795280970722",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "governo",
+                "animais",
+                "991795280970722"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"codigo_microchip\": \"991795280970722\",\n  \"nome\": \"Luna\",\n  \"cor\": \"Branca\",\n  \"sexo\": \"F\",\n  \"data_nascimento\": \"2021-08-02\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "GOV-15 - Rejeitar vacinação sem CRMV",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Retorna HTTP 400\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test(\"Informa que o CRMV é obrigatório\", function () {",
+              "    const resposta = pm.response.json();",
+              "    pm.expect(resposta.status).to.equal(400);",
+              "    pm.expect(resposta.erro).to.equal(\"Dados inválidos.\");",
+              "    pm.expect(resposta.detalhes).to.be.an(\"array\");",
+              "    pm.expect(resposta.detalhes.join(\" \")).to.include(\"crmv\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "cristiano-vacina-invalida-015",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome_animal\": \"Rex\",\n  \"especie\": \"Cão\",\n  \"cor\": \"Preto\",\n  \"sexo\": \"M\",\n  \"raca\": \"SRD\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"nome_vacina\": \"Antirrábica\",\n  \"fabricante\": \"Laboratório de Teste\",\n  \"numero_lote\": \"LT-GOV-015\",\n  \"data_aplicacao\": \"2026-11-19\",\n  \"dose\": \"Dose anual\",\n  \"via_aplicacao\": \"Subcutânea\",\n  \"validade_lote\": \"2027-06-30\",\n  \"observacoes\": \"Aplicação fictícia para teste da API\",\n  \"crmv\": \"\",\n  \"uf_crmv\": \"RJ\",\n  \"nome_vet_responsavel\": \"Veterinária de Teste\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/governo/vacinacoes-antirrabicas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "governo",
+            "vacinacoes-antirrabicas"
+          ]
+        },
+        "description": "### Objetivo\n\nRejeitar uma vacinação quando o CRMV do responsável está vazio.\n\n### Pré-condições\n\nAPI em modo normal. Manter o Body válido, exceto crmv vazio, e a chave cristiano-vacina-invalida-015.\n\n### Verificações\n\nRetornar HTTP 400, Dados inválidos. e detalhes de validação indicando crmv.\n\n### Resultado documentado\n\n- Data da evidência: 22/11/2026 às 19h46.\n- HTTP observado: 400 Bad Request.\n- Verificações aprovadas: 2/2.\n- Situação: Aprovado.\n\n### Exemplo de resposta\n\nO corpo JSON foi transcrito da evidência fornecida na execução. Cabeçalhos de transporte e tempo de resposta não foram transcritos.\n\nRastreabilidade: este item foi reconstituído no JSON durante a revisão da exportação; seu resultado consta do roteiro e do print de execução indicado acima.\n"
+      },
+      "response": [
+        {
+          "id": "3dee87aa-5457-4286-8561-a709cc1f0f80",
+          "name": "HTTP 400 - JSON observado",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "cristiano-vacina-invalida-015",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome_animal\": \"Rex\",\n  \"especie\": \"Cão\",\n  \"cor\": \"Preto\",\n  \"sexo\": \"M\",\n  \"raca\": \"SRD\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"nome_vacina\": \"Antirrábica\",\n  \"fabricante\": \"Laboratório de Teste\",\n  \"numero_lote\": \"LT-GOV-015\",\n  \"data_aplicacao\": \"2026-11-19\",\n  \"dose\": \"Dose anual\",\n  \"via_aplicacao\": \"Subcutânea\",\n  \"validade_lote\": \"2027-06-30\",\n  \"observacoes\": \"Aplicação fictícia para teste da API\",\n  \"crmv\": \"\",\n  \"uf_crmv\": \"RJ\",\n  \"nome_vet_responsavel\": \"Veterinária de Teste\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/governo/vacinacoes-antirrabicas",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "governo",
+                "vacinacoes-antirrabicas"
+              ]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"status\": 400,\n  \"erro\": \"Dados inválidos.\",\n  \"detalhes\": [\n    \"crmv: não deve estar em branco\"\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "GOV-16A - Serviço governamental indisponível",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Retorna HTTP 503\", function () {",
+              "    pm.response.to.have.status(503);",
+              "});",
+              "pm.test(\"Informa a indisponibilidade simulada\", function () {",
+              "    const resposta = pm.response.json();",
+              "    pm.expect(resposta.status).to.equal(503);",
+              "    pm.expect(resposta.erro).to.equal(",
+              "        \"Serviço governamental simulado indisponível.\"",
+              "    );",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "cristiano-vacina-016",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome_animal\": \"Rex\",\n  \"especie\": \"Cão\",\n  \"cor\": \"Preto\",\n  \"sexo\": \"M\",\n  \"raca\": \"SRD\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"nome_vacina\": \"Antirrábica\",\n  \"fabricante\": \"Laboratório de Teste\",\n  \"numero_lote\": \"LT-GOV-016\",\n  \"data_aplicacao\": \"2026-11-19\",\n  \"dose\": \"Dose anual\",\n  \"via_aplicacao\": \"Subcutânea\",\n  \"validade_lote\": \"2027-06-30\",\n  \"observacoes\": \"Aplicação fictícia para teste da API\",\n  \"crmv\": \"90001\",\n  \"uf_crmv\": \"RJ\",\n  \"nome_vet_responsavel\": \"Veterinária de Teste\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/governo/vacinacoes-antirrabicas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "governo",
+            "vacinacoes-antirrabicas"
+          ]
+        },
+        "description": "### Objetivo\n\nVerificar a resposta da API durante a indisponibilidade simulada.\n\n### Pré-condições\n\nReiniciar a API com --governo.simular-indisponibilidade=true. Body da vacinação válido e chave cristiano-vacina-016.\n\n### Verificações\n\nRetornar HTTP 503 e Serviço governamental simulado indisponível.\n\n### Resultado documentado\n\n- Data da evidência: 22/11/2026 às 20h12.\n- HTTP observado: 503 Service Unavailable.\n- Verificações aprovadas: 2/2.\n- Situação: Aprovado.\n\nO HTTP 503 é esperado neste cenário e representa aprovação do teste. Guardar a mesma chave e o mesmo Body para GOV-16B.\n\n### Exemplo de resposta\n\nO corpo JSON foi transcrito da evidência fornecida na execução. Cabeçalhos de transporte e tempo de resposta não foram transcritos.\n\nRastreabilidade: este item foi reconstituído no JSON durante a revisão da exportação; seu resultado consta do roteiro e do print de execução indicado acima.\n"
+      },
+      "response": [
+        {
+          "id": "cfee784f-c28a-429e-97f7-c94e3fceb369",
+          "name": "HTTP 503 - JSON observado",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "cristiano-vacina-016",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome_animal\": \"Rex\",\n  \"especie\": \"Cão\",\n  \"cor\": \"Preto\",\n  \"sexo\": \"M\",\n  \"raca\": \"SRD\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"nome_vacina\": \"Antirrábica\",\n  \"fabricante\": \"Laboratório de Teste\",\n  \"numero_lote\": \"LT-GOV-016\",\n  \"data_aplicacao\": \"2026-11-19\",\n  \"dose\": \"Dose anual\",\n  \"via_aplicacao\": \"Subcutânea\",\n  \"validade_lote\": \"2027-06-30\",\n  \"observacoes\": \"Aplicação fictícia para teste da API\",\n  \"crmv\": \"90001\",\n  \"uf_crmv\": \"RJ\",\n  \"nome_vet_responsavel\": \"Veterinária de Teste\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/governo/vacinacoes-antirrabicas",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "governo",
+                "vacinacoes-antirrabicas"
+              ]
+            }
+          },
+          "status": "Service Unavailable",
+          "code": 503,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"status\": 503,\n  \"erro\": \"Serviço governamental simulado indisponível.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "GOV-16B - Reenviar vacinação após recuperação",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Retorna HTTP 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test(\"Registra a vacinação após a recuperação\", function () {",
+              "    const resposta = pm.response.json();",
+              "    pm.expect(resposta.codigoMicrochip).to.equal(\"982000000000002\");",
+              "    pm.expect(resposta.idVacinacao).to.be.a(\"number\").and.to.be.above(0);",
+              "    pm.expect(resposta.protocolo).to.be.a(\"string\").and.not.empty;",
+              "    pm.collectionVariables.set(\"idVacinacaoRecuperacao\", resposta.idVacinacao);",
+              "    pm.collectionVariables.set(\"protocoloRecuperacao\", resposta.protocolo);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "cristiano-vacina-016",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome_animal\": \"Rex\",\n  \"especie\": \"Cão\",\n  \"cor\": \"Preto\",\n  \"sexo\": \"M\",\n  \"raca\": \"SRD\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"nome_vacina\": \"Antirrábica\",\n  \"fabricante\": \"Laboratório de Teste\",\n  \"numero_lote\": \"LT-GOV-016\",\n  \"data_aplicacao\": \"2026-11-19\",\n  \"dose\": \"Dose anual\",\n  \"via_aplicacao\": \"Subcutânea\",\n  \"validade_lote\": \"2027-06-30\",\n  \"observacoes\": \"Aplicação fictícia para teste da API\",\n  \"crmv\": \"90001\",\n  \"uf_crmv\": \"RJ\",\n  \"nome_vet_responsavel\": \"Veterinária de Teste\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/governo/vacinacoes-antirrabicas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "governo",
+            "vacinacoes-antirrabicas"
+          ]
+        },
+        "description": "### Objetivo\n\nReenviar a vacinação diretamente ao serviço governamental após restaurar sua disponibilidade.\n\n### Pré-condições\n\nExecutar GOV-16A; parar e reiniciar a API com --governo.simular-indisponibilidade=false. Manter a mesma chave e o mesmo Body.\n\n### Verificações\n\nRetornar HTTP 201, o microchip do Rex, idVacinacao positivo e protocolo. O script armazena idVacinacaoRecuperacao e protocoloRecuperacao.\n\n### Resultado documentado\n\n- Data da evidência: 22/11/2026 às 20h17.\n- HTTP observado: 201 Created.\n- Verificações aprovadas: 2/2.\n- Situação: Aprovado.\n\nEste caso verifica reenvio manual à API governamental. A preservação de pendências e o reenvio automático pela API da clínica pertencem à validação da integração.\n\n### Exemplo de resposta\n\nO corpo JSON foi transcrito da evidência fornecida na execução. Cabeçalhos de transporte e tempo de resposta não foram transcritos.\n\nRastreabilidade: este item foi reconstituído no JSON durante a revisão da exportação; seu resultado consta do roteiro e do print de execução indicado acima.\n"
+      },
+      "response": [
+        {
+          "id": "17576c58-5c0b-4405-b5f7-14b9dd9a2937",
+          "name": "HTTP 201 - JSON observado",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "cristiano-vacina-016",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo_microchip\": \"982000000000002\",\n  \"nome_animal\": \"Rex\",\n  \"especie\": \"Cão\",\n  \"cor\": \"Preto\",\n  \"sexo\": \"M\",\n  \"raca\": \"SRD\",\n  \"data_nascimento\": \"2022-04-10\",\n  \"nome_vacina\": \"Antirrábica\",\n  \"fabricante\": \"Laboratório de Teste\",\n  \"numero_lote\": \"LT-GOV-016\",\n  \"data_aplicacao\": \"2026-11-19\",\n  \"dose\": \"Dose anual\",\n  \"via_aplicacao\": \"Subcutânea\",\n  \"validade_lote\": \"2027-06-30\",\n  \"observacoes\": \"Aplicação fictícia para teste da API\",\n  \"crmv\": \"90001\",\n  \"uf_crmv\": \"RJ\",\n  \"nome_vet_responsavel\": \"Veterinária de Teste\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/governo/vacinacoes-antirrabicas",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "governo",
+                "vacinacoes-antirrabicas"
+              ]
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"codigoMicrochip\": \"982000000000002\",\n  \"idVacinacao\": 3,\n  \"protocolo\": \"976e43e1-b5f0-4e83-9512-e3a2287f64d1\"\n}"
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "protocoloCadastro",
+      "value": "eb503992-9578-421a-be15-1779fc362014",
+      "type": "string",
+      "description": "Valor de exemplo da execução documentada em novembro de 2026. Os scripts de preparação ou de resposta atualizam o valor local durante a execução."
+    },
+    {
+      "key": "protocoloAtualizacao",
+      "value": "8786a31d-294f-4398-bb0f-95ebd0dd88f3",
+      "type": "string",
+      "description": "Valor de exemplo da execução documentada em novembro de 2026. Os scripts de preparação ou de resposta atualizam o valor local durante a execução."
+    },
+    {
+      "key": "idVacinacao",
+      "value": "1",
+      "type": "string",
+      "description": "Valor de exemplo da execução documentada em novembro de 2026. Os scripts de preparação ou de resposta atualizam o valor local durante a execução."
+    },
+    {
+      "key": "protocoloVacinacao",
+      "value": "69ca0d19-a11f-4117-82a3-a117ced1d6c3",
+      "type": "string",
+      "description": "Valor de exemplo da execução documentada em novembro de 2026. Os scripts de preparação ou de resposta atualizam o valor local durante a execução."
+    },
+    {
+      "key": "microchipNovo",
+      "value": "991795280970722",
+      "type": "string",
+      "description": "Valor de exemplo da execução documentada em novembro de 2026. Os scripts de preparação ou de resposta atualizam o valor local durante a execução."
+    },
+    {
+      "key": "protocoloNovoAnimal",
+      "value": "7b86e1bb-3a80-465e-ba95-5fb3c8310f1f",
+      "type": "string",
+      "description": "Valor de exemplo da execução documentada em novembro de 2026. Os scripts de preparação ou de resposta atualizam o valor local durante a execução."
+    },
+    {
+      "key": "idVacinacaoNovoAnimal",
+      "value": "2",
+      "type": "string",
+      "description": "Valor de exemplo da execução documentada em novembro de 2026. Os scripts de preparação ou de resposta atualizam o valor local durante a execução."
+    },
+    {
+      "key": "idVacinacaoRecuperacao",
+      "value": "3",
+      "type": "string",
+      "description": "Valor de exemplo da execução documentada em novembro de 2026. Os scripts de preparação ou de resposta atualizam o valor local durante a execução."
+    },
+    {
+      "key": "protocoloRecuperacao",
+      "value": "976e43e1-b5f0-4e83-9512-e3a2287f64d1",
+      "type": "string",
+      "description": "Valor de exemplo da execução documentada em novembro de 2026. Os scripts de preparação ou de resposta atualizam o valor local durante a execução."
+    }
+  ]
+}
